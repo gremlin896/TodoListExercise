@@ -3,7 +3,8 @@ import {
   ChangeDetectionStrategy,
   Input,
   EventEmitter,
-  Output
+  Output,
+  TrackByFunction,
 } from '@angular/core';
 import { MatSelectionListChange } from '@angular/material/list';
 import { Todo, UpdateTodo, RemoveTodo } from '../../models';
@@ -16,7 +17,7 @@ import { Todo, UpdateTodo, RemoveTodo } from '../../models';
       (selectionChange)="selectionChanged($event)"
     >
       <mat-list-option
-        *ngFor="let todo of todos"
+        *ngFor="let todo of todos; trackBy: trackBy"
         [value]="todo.id"
         [selected]="todo.completed"
       >
@@ -34,7 +35,7 @@ import { Todo, UpdateTodo, RemoveTodo } from '../../models';
 
     <ng-template #empty>There are no remaining tasks!</ng-template>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TodoListComponent {
   @Input() todos: Todo[] = [];
@@ -42,12 +43,14 @@ export class TodoListComponent {
   @Output() update = new EventEmitter<UpdateTodo>();
   @Output() remove = new EventEmitter<RemoveTodo>();
 
+  trackBy: TrackByFunction<Todo> = (_i, todo) => todo.id;
+
   selectionChanged(e: MatSelectionListChange) {
     const { selected: completed, value: id } = e.options[0];
 
     this.update.emit({
       id,
-      completed
+      completed,
     });
   }
 
